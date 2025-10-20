@@ -32,15 +32,16 @@ jobs:
 
       - name: Run Prettier on Salesforce code
         run: |
-          npx prettier --write "force-app/**/*.cls"
-          npx prettier --write "force-app/**/*.trigger"
-          npx prettier --write "force-app/**/*.cmp"
-          npx prettier --write "force-app/**/*.page"
-          npx prettier --write "force-app/**/*.js"
-          npx prettier --write "force-app/**/*.html"
-          npx prettier --write "force-app/**/*.css"
-          npx prettier --write "force-app/**/*.xml"
-
+          for pattern in "force-app/**/*.cls" "force-app/**/*.trigger" "force-app/**/*.cmp" "force-app/**/*.page" "force-app/**/*.js" "force-app/**/*.html" "force-app/**/*.css" "force-app/**/*.xml"
+          do
+            files=$(find force-app -type f -name "$(basename $pattern)" -o -name "${pattern#force-app/}")
+            if [ -n "$files" ]; then
+              npx prettier --write "$pattern"
+            else
+              echo "No files found for pattern $pattern, skipping..."
+            fi
+          done
+          
       - name: Commit and push changes (if any)
         run: |
           if [[ `git status --porcelain` ]]; then
