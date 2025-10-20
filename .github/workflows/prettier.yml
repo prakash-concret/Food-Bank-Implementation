@@ -29,6 +29,11 @@ jobs:
       - name: Install Prettier and Apex Plugin
         run: |
           npm install --save-dev prettier prettier-plugin-apex
+          
+      - name: Verify Apex plugin is available
+        run: |
+          npx prettier --version
+          ls -la node_modules/prettier-plugin-apex || echo "Plugin not found!"
 
       - name: Run Prettier on Salesforce code
         run: |
