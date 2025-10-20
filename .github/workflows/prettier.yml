@@ -1,11 +1,10 @@
-name: Prettier Check
+name: Format Salesforce Code
 
 on:
-  pull_request:
   push:
     branches:
-      - feature/**
       - main
+      - 'feature/**'
     paths-ignore:
       - .gitignore
       - .github/**
@@ -13,30 +12,43 @@ on:
   workflow_dispatch:
 
 jobs:
-  prettier:
-    name: Prettier Check
+  format:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout the repository
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # 2️⃣ Set up Node.js (LTS version recommended)
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 3️⃣ Install Prettier and Apex plugin dependencies
-      - name: Install Prettier and plugins
+      - name: Install Prettier and Apex Plugin
         run: |
           npm install --save-dev prettier prettier-plugin-apex
 
-      # 4️⃣ Run Prettier formatting check
-      - name: Run Prettier
-        uses: creyD/prettier_action@v4.6
-        with:
-          prettier_options: --write "**/*.{js,md,json,css,yml,yaml,cls,trigger,xml}"
-        env:
-          PRETTIER_PLUGIN_SEARCH_DIR: .
+      - name: Run Prettier on Salesforce code
+        run: |
+          npx prettier --write "force-app/**/*.cls"
+          npx prettier --write "force-app/**/*.trigger"
+          npx prettier --write "force-app/**/*.cmp"
+          npx prettier --write "force-app/**/*.page"
+          npx prettier --write "force-app/**/*.js"
+          npx prettier --write "force-app/**/*.html"
+          npx prettier --write "force-app/**/*.css"
+          npx prettier --write "force-app/**/*.xml"
+
+      - name: Commit and push changes (if any)
+        run: |
+          if [[ `git status --porcelain` ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add .
+            git commit -m "chore: auto-format Salesforce code with Prettier"
+            git push
+          else
+            echo "No formatting changes detected."
+          fi
