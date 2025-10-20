@@ -32,9 +32,12 @@ jobs:
 
       - name: Run Prettier on Salesforce code
         run: |
-          for pattern in "force-app/**/*.cls" "force-app/**/*.trigger" "force-app/**/*.cmp" "force-app/**/*.page" "force-app/**/*.js" "force-app/**/*.html" "force-app/**/*.css" "force-app/**/*.xml"
+          # List of patterns to format (ignore XML metadata)
+          patterns=("force-app/**/*.cls" "force-app/**/*.trigger" "force-app/**/*.cmp" "force-app/**/*.page" "force-app/**/*.js" "force-app/**/*.html" "force-app/**/*.css")
+          
+          for pattern in "${patterns[@]}"
           do
-            files=$(find force-app -type f -name "$(basename $pattern)" -o -name "${pattern#force-app/}")
+            files=$(find force-app -type f -name "$(basename $pattern)" -o -name "${pattern#force-app/}" ! -name "*-meta.xml")
             if [ -n "$files" ]; then
               npx prettier --write "$pattern"
             else
