@@ -1,10 +1,10 @@
 /**
- * @description       : 
+ * @description       :
  * @author            : Element
- * @group             : 
+ * @group             :
  * @last modified on  : 10-20-2025
  * @last modified by  : Element
-**/
+ **/
 public with sharing class Utility {
     @TestVisible
     private static Utility utilityObj;
@@ -13,13 +13,13 @@ public with sharing class Utility {
         get {
             if (namespace == null) {
                 String withDotNotation = Utility.class.getName();
-                    if (withDotNotation.contains('.')) {
+                if (withDotNotation.contains('.')) {
                     namespace = withDotNotation.substringBefore('.');
                 } else {
                     namespace = '';
                 }
             }
-        return namespace;
+            return namespace;
         }
         set {
             namespace = value;
@@ -62,12 +62,12 @@ public with sharing class Utility {
      * @author Element | 01-03-2025
      * @return String
      **/
-            public static String currentCommunityBaseURL {
+    public static String currentCommunityBaseURL {
         get {
             if (String.isNotBlank(Site.getBaseRequestUrl())) {
                 return Site.getBaseRequestUrl();
             }
-                 return Site.getBaseCustomUrl();
+            return Site.getBaseCustomUrl();
         }
         private set;
     }
@@ -75,9 +75,7 @@ public with sharing class Utility {
     public static Utility getInstance() {
         if (utilityObj == null) {
             utilityObj = new Utility();
-             }
+        }
         return utilityObj;
     }
-    
-    
 }
