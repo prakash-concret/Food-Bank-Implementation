@@ -1,0 +1,27 @@
+name: Feature 2GP
+on:
+  pull_request:
+  push:
+    branches:
+      - feature/**
+      - main
+    paths-ignore:
+      - .gitignore
+      - .github/**
+      - security_review/**  
+  workflow_dispatch:
+
+jobs:
+  prettier:
+    name: Prettier Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prettier Action
+        uses: creyD/prettier_action@v4.6
+        with:
+          prettier_options: --write **/*.{js,md,json,css,yml,yaml,cls,trigger,xml}
+  
