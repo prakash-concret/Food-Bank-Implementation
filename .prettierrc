@@ -1,5 +1,5 @@
 {
-  "plugins": ["./node_modules/prettier-plugin-apex"],
+  "plugins": ["prettier-plugin-apex"],
   "trailingComma": "none",
   "overrides": [
     {
