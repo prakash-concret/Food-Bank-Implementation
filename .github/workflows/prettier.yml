@@ -1,7 +1,7 @@
-name: Format Salesforce Code
+name: Format Salesforce Code (PR Changed Files Only)
 
 on:
-  push:
+  pull_request:
     branches:
       - main
       - 'feature/**'
@@ -12,8 +12,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  format:
+  prettier:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # needed to push changes
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -30,28 +33,53 @@ jobs:
         run: |
           npm install --save-dev prettier@latest prettier-plugin-apex@latest
 
-      - name: Run Prettier on Salesforce code
+      - name: Get changed files in PR
+        id: changed
         run: |
-          # List of patterns to format (ignore XML metadata)
-          patterns=("force-app/**/*.cls" "force-app/**/*.trigger" "force-app/**/*.cmp" "force-app/**/*.page" "force-app/**/*.js" "force-app/**/*.html" "force-app/**/*.css")
-          
-          for pattern in "${patterns[@]}"
+          git fetch origin ${{ github.base_ref }} --depth=1
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...${{ github.head_ref }})
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Run Prettier on changed Salesforce files (if exist)
+        run: |
+          SUPPORTED_EXTENSIONS=("cls" "trigger" "cmp" "page" "js" "html" "css")
+          FILES_TO_FORMAT=()
+
+          echo "Checking for supported files..."
+          for file in ${{ steps.changed.outputs.files }}
           do
-            files=$(find force-app -type f -name "$(basename $pattern)" -o -name "${pattern#force-app/}" ! -name "*-meta.xml")
-            if [ -n "$files" ]; then
-              npx prettier --write "$pattern"
-            else
-              echo "No files found for pattern $pattern, skipping..."
+            # Skip deleted or renamed files
+            if [ ! -f "$file" ]; then
+              continue
+            fi
+
+            # Extract extension and check if supported
+            ext="${file##*.}"
+            if [[ " ${SUPPORTED_EXTENSIONS[@]} " =~ " ${ext} " ]] && [[ "$file" != *-meta.xml ]]; then
+              FILES_TO_FORMAT+=("$file")
             fi
           done
-          
+
+          if [ ${#FILES_TO_FORMAT[@]} -eq 0 ]; then
+            echo "No supported files found. Skipping Prettier."
+            exit 0
+          fi
+
+          echo "Formatting files:"
+          printf '%s\n' "${FILES_TO_FORMAT[@]}"
+          npx prettier --write "${FILES_TO_FORMAT[@]}"
+
       - name: Commit and push changes (if any)
         run: |
           if [[ `git status --porcelain` ]]; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add .
-            git commit -m "chore: auto-format Salesforce code with Prettier"
+            git commit -m "chore: auto-format changed Salesforce files in PR"
             git push
           else
             echo "No formatting changes detected."
