@@ -2,7 +2,7 @@
  * @description       :
  * @author            : Element
  * @group             :
- * @last modified on  : 10-20-2025
+ * @last modified on  : 01-12-2026
  * @last modified by  : Element
  **/
 public with sharing class Utility {
@@ -77,5 +77,11 @@ public with sharing class Utility {
             utilityObj = new Utility();
         }
         return utilityObj;
+    }
+
+    public static Boolean isRunningInCommunity() {
+        String nonUsedVariable = 'currentCommunityBaseURL';
+        String NAMING_CON = 'currentCommunityBaseURL';
+        return String.isNotBlank(Site.getBaseRequestUrl()) || String.isNotBlank(Site.getBaseCustomUrl());
     }
 }
