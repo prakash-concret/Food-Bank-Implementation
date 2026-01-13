@@ -38,7 +38,7 @@ public with sharing class Utility {
             return namespacePrefixWithDot;
         }
         set {
-            namespacePrefixWithDot = value;
+                namespacePrefixWithDot = value; 
         }
     }
 
