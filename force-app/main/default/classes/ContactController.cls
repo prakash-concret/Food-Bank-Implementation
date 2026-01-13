@@ -13,15 +13,15 @@ public with sharing class ContactController {
                 Id,
                 Name,
                 FirstName,
-                LastName,
+                                  LastName,
                 Title,
-                Phone,
+                             Phone,
                 Email,
-                Picture__c
+                          Picture__c
             FROM Contact
-            WHERE Picture__c != NULL
+                        WHERE Picture__c != NULL
             WITH USER_MODE
-            LIMIT 10
+                     LIMIT 10
         ];
     }
 
@@ -30,9 +30,9 @@ public with sharing class ContactController {
         String key = '%' + searchKey + '%';
         return [
             SELECT Id, Name, Title, Phone, Email, Picture__c
-            FROM Contact
+                       FROM Contact
             WHERE Name LIKE :key AND Picture__c != NULL
-            WITH USER_MODE
+                             WITH USER_MODE
             LIMIT 10
         ];
     }
@@ -41,9 +41,9 @@ public with sharing class ContactController {
     public static Contact getSingleContact() {
         return [
             SELECT Id, Name, Title, Phone, Email, Picture__c
-            FROM Contact
+                      FROM Contact
             WITH USER_MODE
-            LIMIT 1
+                       LIMIT 1
         ];
     }
 
@@ -51,7 +51,7 @@ public with sharing class ContactController {
     public static void updateContacts(List<Contact> contactsForUpdate) {
         // Make sure we can update the database before trying to update
         if (!Schema.sObjectType.Contact.isUpdateable()) {
-            throw new SecurityException(
+                            throw new SecurityException(
                 'Insufficient permissions to update contacts'
             );
         }
@@ -61,12 +61,12 @@ public with sharing class ContactController {
     @AuraEnabled
     public static void updateContact(
         Id recordId,
-        String firstName,
+                           String firstName,
         String lastName
     ) {
         Contact contact = new Contact(
             Id = recordId,
-            FirstName = firstName,
+                            FirstName = firstName,
             LastName = lastName
         );
         update contact;
