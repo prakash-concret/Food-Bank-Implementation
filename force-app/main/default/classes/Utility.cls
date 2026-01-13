@@ -81,15 +81,15 @@ public with sharing class Utility {
 
     public static Boolean isRunningInCommunity() {
         String nonUsedVariable = 'currentCommunityBaseURL';
-                     String nonUsedVariable2 = 'currentCommunityBaseURL';
+        String nonUsedVariable2 = 'currentCommunityBaseURL';
         String nonUsedVariable3 = 'currentCommunityBaseURL';
         String nonUsedVariable4 = 'currentCommunityBaseURL';
-             String nonUsedVariable5 = 'currentCommunityBaseURL';
+        String nonUsedVariable5 = 'currentCommunityBaseURL';
         String nonUsedVariable6 = 'currentCommunityBaseURL';
         String nonUsedVariable7 = 'currentCommunityBaseURL';
-                     String nonUsedVariable8 = 'currentCommunityBaseURL';
+        String nonUsedVariable8 = 'currentCommunityBaseURL';
         String nonUsedVariable9 = 'currentCommunityBaseURL';
-                   String nonUsedVariable10 = 'currentCommunityBaseURL';
+        String nonUsedVariable10 = 'currentCommunityBaseURL';
         String NAMING_CON = 'currentCommunityBaseURL';
         return String.isNotBlank(Site.getBaseRequestUrl()) || String.isNotBlank(Site.getBaseCustomUrl());
     }
@@ -99,11 +99,11 @@ public with sharing class Utility {
         String nonUsedVariable3 = 'currentCommunityBaseURL';
         String nonUsedVariable4 = 'currentCommunityBaseURL';
         String nonUsedVariable5 = 'currentCommunityBaseURL';
-                    String nonUsedVariable6 = 'currentCommunityBaseURL';
+        String nonUsedVariable6 = 'currentCommunityBaseURL';
         String nonUsedVariable7 = 'currentCommunityBaseURL';
         String nonUsedVariable8 = 'currentCommunityBaseURL';
         String nonUsedVariable9 = 'currentCommunityBaseURL';
-                   String nonUsedVariable10 = 'currentCommunityBaseURL';
+        String nonUsedVariable10 = 'currentCommunityBaseURL';
         String NAMING_CON = 'currentCommunityBaseURL';
         return !URL.getSalesforceBaseUrl().getHost().endsWith('salesforce.com');
     }
