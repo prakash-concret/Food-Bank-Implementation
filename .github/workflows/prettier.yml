@@ -5,10 +5,8 @@ on:
     branches:
       - main
       - 'feature/**'
-    paths-ignore:
-      - .gitignore
-      - .github/**
-      - security_review/**
+    paths:
+      - 'force-app/**'
   workflow_dispatch:
 
 jobs:
@@ -22,6 +20,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
 
       - name: Set up Node.js
@@ -36,9 +35,9 @@ jobs:
       - name: Get changed files in PR
         id: changed
         run: |
-          git fetch origin ${{ github.base_ref }} --depth=1
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...${{ github.head_ref }})
-          echo "Changed files:"
+          git fetch origin ${{ github.base_ref }}
+          CHANGED_FILES=$(git diff --name-only --diff-filter=ACM origin/${{ github.base_ref }}...HEAD | grep '^force-app/' || true)
+          echo "Changed files in force-app:"
           echo "$CHANGED_FILES"
           echo "files<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
@@ -49,23 +48,28 @@ jobs:
           SUPPORTED_EXTENSIONS=("cls" "trigger" "cmp" "page" "js" "html" "css")
           FILES_TO_FORMAT=()
 
-          echo "Checking for supported files..."
+          echo "Checking for supported files in force-app..."
           for file in ${{ steps.changed.outputs.files }}
           do
-            # Skip deleted or renamed files
+            # Skip if file doesn't exist (shouldn't happen with ACM filter)
             if [ ! -f "$file" ]; then
+              continue
+            fi
+
+            # Skip meta.xml files
+            if [[ "$file" == *-meta.xml ]]; then
               continue
             fi
 
             # Extract extension and check if supported
             ext="${file##*.}"
-            if [[ " ${SUPPORTED_EXTENSIONS[@]} " =~ " ${ext} " ]] && [[ "$file" != *-meta.xml ]]; then
+            if [[ " ${SUPPORTED_EXTENSIONS[@]} " =~ " ${ext} " ]]; then
               FILES_TO_FORMAT+=("$file")
             fi
           done
 
           if [ ${#FILES_TO_FORMAT[@]} -eq 0 ]; then
-            echo "No supported files found. Skipping Prettier."
+            echo "No supported files found in force-app. Skipping Prettier."
             exit 0
           fi
 
@@ -80,7 +84,7 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add .
             git commit -m "chore: auto-format changed Salesforce files in PR"
-            git push
+            git push origin HEAD:${{ github.head_ref }}
           else
             echo "No formatting changes detected."
           fi
