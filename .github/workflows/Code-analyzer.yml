@@ -1,4 +1,4 @@
-name: standard Salesforce Code Analyzer Workflow
+name: Salesforce Code Analyzer Workflow
 
 on:
   pull_request:
@@ -37,12 +37,16 @@ jobs:
 
           # Get all changed files under force-app/main/default/
           CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
-            | grep '^force-app/main/default/' || true)>> $GITHUB_ENV
+            | grep '^force-app/main/default/' || true)
+          
+          echo "CHANGED_FILES<<EOF" >> $GITHUB_ENV
+          echo "$CHANGED_FILES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Run Salesforce Code Analyzer
         id: run-code-analyzer
         uses: forcedotcom/run-code-analyzer@v2
         with:
-          run-arguments: --workspace .${{ env.CHANGED_FILES }} --config-file sfac.yml --view detail --output-file sfca_results.html --output-file sfca_results.json
+          run-arguments: --workspace . --config-file sfac.yml --engine cpd --format table --outfile sfca_results.html --outfile sfca_results.json
           results-artifact-name: salesforce-code-analyzer-results
-          github-token: ${{ github.token }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
