@@ -18,7 +18,7 @@ jobs:
 
       - uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: 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
+          anthropic_api_key: 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
           track_progress: true # Enables tracking comments
           prompt: |
             REPO: ${{ github.repository }}
@@ -97,4 +97,5 @@ jobs:
             Post your detailed findings as inline PR comments at the relevant lines.
 
           claude_args: |
+
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*)"
