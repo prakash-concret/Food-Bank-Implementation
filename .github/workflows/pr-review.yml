@@ -97,4 +97,5 @@ jobs:
             Post your detailed findings as inline PR comments at the relevant lines.
 
           claude_args: |
+
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*)"
