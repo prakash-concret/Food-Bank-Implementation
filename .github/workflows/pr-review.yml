@@ -1,0 +1,100 @@
+name: PR Review
+
+on:
+  pull_request:
+
+jobs:
+  pr-review:
+    runs-on: ubuntu-latest
+    environment: pr-action
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: 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
+          track_progress: true # Enables tracking comments
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            You are an expert code reviewer. Analyze this PR with a focus on code quality, maintainability, and best practices.
+      
+            ## Review Guidelines
+
+            ### 1. Code Quality & Best Practices
+            - Identify violations of SOLID principles, DRY, KISS, and YAGNI
+            - Check for proper error handling and edge cases
+            - Verify input validation and sanitization
+            - Look for potential security vulnerabilities (SQL injection, XSS, etc.)
+            - Check for hardcoded credentials, API keys, or sensitive data
+            - Verify proper use of environment variables and configuration
+
+            ### 2. Naming Conventions
+            - Variables: Use descriptive, camelCase names (e.g., `userId`, not `uid` or `user_id`)
+            - Functions: Use verb phrases that describe actions (e.g., `getUserById`, `calculateTotal`)
+            - Classes: Use PascalCase nouns (e.g., `UserService`, `PaymentProcessor`)
+            - Constants: Use UPPER_SNAKE_CASE (e.g., `MAX_RETRY_COUNT`, `API_BASE_URL`)
+            - Files: Use kebab-case for files (e.g., `user-service.js`, `payment-processor.ts`)
+            - Booleans: Use is/has/can prefixes (e.g., `isActive`, `hasPermission`, `canEdit`)
+            - Avoid single-letter variables except in tight loops or mathematical contexts
+            - Avoid abbreviations unless universally understood (e.g., `url`, `id`, `api`)
+
+            ### 3. Logic & Complexity
+            - Flag functions with cyclomatic complexity > 10
+            - Identify deeply nested code (>3 levels) that should be refactored
+            - Look for overly long functions (>50 lines) that need decomposition
+            - Check for duplicated logic that should be extracted
+            - Verify proper use of early returns to reduce nesting
+            - Look for complex conditionals that need simplification or extraction
+            - Check for proper separation of concerns
+
+            ### 4. Code Structure & Organization
+            - Verify proper file organization and module structure
+            - Check for circular dependencies
+            - Ensure proper layering (presentation, business logic, data access)
+            - Look for God objects/classes doing too much
+            - Verify proper use of design patterns where appropriate
+
+            ### 5. Performance & Efficiency
+            - Identify N+1 query problems
+            - Look for unnecessary loops or redundant operations
+            - Check for memory leaks (event listeners, timers, large objects)
+            - Verify efficient data structures are used
+            - Look for blocking operations that should be async
+
+            ### 6. Testing & Testability
+            - Check if new code is testable (low coupling, dependency injection)
+            - Verify critical paths have tests
+            - Look for untestable static dependencies or global state
+
+            ### 7. Documentation
+            - Check for missing JSDoc/comments on complex logic
+            - Verify public APIs are documented
+            - Look for outdated comments that don't match code
+
+            ## Output Format
+
+            For each issue found:
+            1. Clearly state the problem
+            2. Explain why it's an issue (impact on maintainability, performance, security, etc.)
+            3. Provide a concrete code example of the fix
+            4. Assign severity: 🔴 Critical | 🟡 Warning | 🔵 Suggestion
+            
+            ## Important Notes
+            - Only review code that was actually changed in this PR
+            - Focus on substantive issues, not nitpicks
+            - Be constructive and educational in your feedback
+            - Prioritize security and correctness over style
+            - The PR branch is already checked out
+            
+            Post your detailed findings as inline PR comments at the relevant lines.
+
+          claude_args: |
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*)"
