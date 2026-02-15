@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Element
  * @group             : 
- * @last modified on  : 01-13-2026
+ * @last modified on  : 02-15-2026
  * @last modified by  : Element
 **/
 public with sharing class AccountController {
@@ -18,6 +18,8 @@ public with sharing class AccountController {
 
     @AuraEnabled(cacheable=true)
     public static Account getSingleAccount() {
+        [select Id, Name, Phone, Type
+                  FROM Account];
                return [
             SELECT Id, Name, Phone, Type
                   FROM Account
