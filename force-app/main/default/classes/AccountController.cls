@@ -2,18 +2,18 @@
  * @description       : 
  * @author            : Element
  * @group             : 
- * @last modified on  : 02-15-2026
+ * @last modified on  : 03-14-2026
  * @last modified by  : Element
 **/
 public with sharing class AccountController {
     @AuraEnabled(cacheable=true)
     public static List<Account> getAccountList() {
-                return [SELECT Id, Name FROM Account WITH USER_MODE LIMIT 10];
+                        return [SELECT Id, Name FROM Account WITH USER_MODE LIMIT 10];
     }
 
     @AuraEnabled(cacheable=true)
     public static Integer getTotalNumber() {
-                      return [SELECT COUNT() FROM Account WITH USER_MODE];
+                                    return [SELECT COUNT() FROM Account WITH USER_MODE];
     }
 
     @AuraEnabled(cacheable=true)

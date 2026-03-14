@@ -1,12 +1,7 @@
 name: Format Salesforce Code (PR Changed Files Only)
 
 on:
-  pull_request:
-    branches:
-      - main
-      - 'feature/**'
-    paths:
-      - 'force-app/**'
+  workflow_call:
   workflow_dispatch:
 
 jobs:

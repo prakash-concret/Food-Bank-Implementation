@@ -2,7 +2,7 @@
  * @description       :
  * @author            : Element
  * @group             :
- * @last modified on  : 01-13-2026
+ * @last modified on  : 03-14-2026
  * @last modified by  : Element
  **/
 public with sharing class Utility {
@@ -101,10 +101,10 @@ public with sharing class Utility {
         String nonUsedVariable5 = 'currentCommunityBaseURL';
         String nonUsedVariable6 = 'currentCommunityBaseURL';
         String nonUsedVariable7 = 'currentCommunityBaseURL';
-        String nonUsedVariable8 = 'currentCommunityBaseURL';
+                String nonUsedVariable8 = 'currentCommunityBaseURL';
         String nonUsedVariable9 = 'currentCommunityBaseURL';
-        String nonUsedVariable10 = 'currentCommunityBaseURL';
+                String nonUsedVariable10 = 'currentCommunityBaseURL';
         String NAMING_CON = 'currentCommunityBaseURL';
-        return !URL.getSalesforceBaseUrl().getHost().endsWith('salesforce.com');
+            return !URL.getSalesforceBaseUrl().getHost().endsWith('salesforce.com');
     }
 }

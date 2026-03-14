@@ -1,0 +1,25 @@
+name: Review Pipeline
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+  actions: read
+
+jobs:
+  prettier:
+    uses: ./.github/workflows/prettier.yml
+    secrets: inherit
+
+  run-sfdx-scanner:
+    needs: prettier
+    uses: ./.github/workflows/run-sfdx-scanner.yml
+    secrets: inherit
+
+  pr-review:
+    needs: run-sfdx-scanner
+    uses: ./.github/workflows/pr-review.yml
+    secrets: inherit
