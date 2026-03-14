@@ -1,28 +1,30 @@
 /**
- * @description       : 
+ * @description       :
  * @author            : Element
- * @group             : 
+ * @group             :
  * @last modified on  : 03-14-2026
  * @last modified by  : Element
-**/
+ **/
 public with sharing class AccountController {
     @AuraEnabled(cacheable=true)
     public static List<Account> getAccountList() {
-                        return [SELECT Id, Name FROM Account WITH USER_MODE LIMIT 10];
+        return [SELECT Id, Name FROM Account WITH USER_MODE LIMIT 10];
     }
 
     @AuraEnabled(cacheable=true)
     public static Integer getTotalNumber() {
-                                    return [SELECT COUNT() FROM Account WITH USER_MODE];
+        return [SELECT COUNT() FROM Account WITH USER_MODE];
     }
 
     @AuraEnabled(cacheable=true)
     public static Account getSingleAccount() {
-        [select Id, Name, Phone, Type
-                  FROM Account];
-               return [
+        [
             SELECT Id, Name, Phone, Type
-                  FROM Account
+            FROM Account
+        ];
+        return [
+            SELECT Id, Name, Phone, Type
+            FROM Account
             WITH USER_MODE
             LIMIT 1
         ];
@@ -34,19 +36,17 @@ public with sharing class AccountController {
             Account acc = [
                 SELECT Id, NumberOfEmployees
                 FROM Account
-                            WHERE Id = :accountId
+                WHERE Id = :accountId
                 WITH USER_MODE
                 LIMIT 1
             ];
             acc.NumberOfEmployees = Integer.valueof((Math.random() * 100000));
-                                   update as user acc;
+            update as user acc;
         } catch (Exception e) {
-                                 throw new AccountUpdateException(
-                'Couldn\'t update account with ID ' + accountId
-            );
+            throw new AccountUpdateException('Couldn\'t update account with ID ' + accountId);
         }
     }
 
-                     public class AccountUpdateException extends Exception {
+    public class AccountUpdateException extends Exception {
     }
 }
