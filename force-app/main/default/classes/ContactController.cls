@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Element
  * @group             : 
- * @last modified on  : 01-13-2026
+ * @last modified on  : 03-14-2026
  * @last modified by  : Element
 **/
 public with sharing class ContactController {
@@ -51,7 +51,7 @@ public with sharing class ContactController {
     public static void updateContacts(List<Contact> contactsForUpdate) {
         // Make sure we can update the database before trying to update
         if (!Schema.sObjectType.Contact.isUpdateable()) {
-                            throw new SecurityException(
+                                throw new SecurityException(
                 'Insufficient permissions to update contacts'
             );
         }
