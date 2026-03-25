@@ -11,43 +11,14 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-      id-token: write
     steps:
-      - name: Check API Key validity
-        id: check-secrets
-        env:
-          API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          if [ -z "$API_KEY" ]; then
-            echo "ANTHROPIC_API_KEY is missing. Skipping remaining steps."
-            echo "has_key=false" >> $GITHUB_OUTPUT
-          else
-            # Test key validity via a minimal API request
-            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-              -H "x-api-key: $API_KEY" \
-              -H "anthropic-version: 2023-06-01" \
-              -H "content-type: application/json" \
-              -d '{"model": "claude-3-haiku-20240307", "max_tokens": 1, "messages": [{"role": "user", "content": "test"}]}' \
-              https://api.anthropic.com/v1/messages)
-            
-            if [ "$HTTP_STATUS" -eq 401 ] || [ "$HTTP_STATUS" -eq 403 ]; then
-              echo "ANTHROPIC_API_KEY is invalid (HTTP $HTTP_STATUS). Skipping remaining steps."
-              echo "has_key=false" >> $GITHUB_OUTPUT
-            else
-              echo "ANTHROPIC_API_KEY is present and appears valid."
-              echo "has_key=true" >> $GITHUB_OUTPUT
-            fi
-          fi
-
       - uses: actions/checkout@v4
-        if: steps.check-secrets.outputs.has_key == 'true'
         with:
           fetch-depth: 1
 
       - uses: anthropics/claude-code-action@v1
-        if: steps.check-secrets.outputs.has_key == 'true'
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           track_progress: true # Enables tracking comments
           prompt: |
             REPO: ${{ github.repository }}
