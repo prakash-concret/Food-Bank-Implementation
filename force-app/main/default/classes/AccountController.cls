@@ -2,7 +2,7 @@
  * @description       :
  * @author            : Element
  * @group             :
- * @last modified on  : 03-14-2026
+ * @last modified on  : 04-13-2026
  * @last modified by  : Element
  **/
 public with sharing class AccountController {
@@ -14,7 +14,7 @@ public with sharing class AccountController {
     @AuraEnabled(cacheable=true)
     public static Integer getTotalNumber() {
         return [SELECT COUNT() FROM Account WITH USER_MODE];
-    }
+    } 
 
     @AuraEnabled(cacheable=true)
     public static Account getSingleAccount() {
