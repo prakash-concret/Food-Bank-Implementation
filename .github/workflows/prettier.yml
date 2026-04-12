@@ -3,6 +3,11 @@ name: Format Salesforce Code (PR Changed Files Only)
 on:
   workflow_call:
   workflow_dispatch:
+    inputs:
+      base_branch:
+        description: 'Base branch to compare against (e.g. main)'
+        required: false
+        default: 'main'
 
 jobs:
   prettier:
@@ -15,7 +20,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 0
 
       - name: Set up Node.js
@@ -30,8 +35,9 @@ jobs:
       - name: Get changed files in PR
         id: changed
         run: |
-          git fetch origin ${{ github.base_ref }}
-          CHANGED_FILES=$(git diff --name-only --diff-filter=ACM origin/${{ github.base_ref }}...HEAD | grep '^force-app/' || true)
+          BASE=${{ github.base_ref || inputs.base_branch || 'main' }}
+          git fetch origin $BASE
+          CHANGED_FILES=$(git diff --name-only --diff-filter=ACM origin/$BASE...HEAD | grep '^force-app/' || true)
           echo "Changed files in force-app:"
           echo "$CHANGED_FILES"
           echo "files<<EOF" >> $GITHUB_OUTPUT
@@ -85,7 +91,7 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add .
             git commit -m "chore: auto-format changed Salesforce files in PR"
-            git push origin HEAD:${{ github.head_ref }}
+            git push origin HEAD:${{ github.head_ref || github.ref_name }}
           else
             echo "No formatting changes detected."
           fi
