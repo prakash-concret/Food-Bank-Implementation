@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Element
  * @group             : 
- * @last modified on  : 01-13-2026
+ * @last modified on  : 04-13-2026
  * @last modified by  : Element
 **/
 public with sharing class ApexTypesController {
@@ -22,5 +22,50 @@ public with sharing class ApexTypesController {
                               wrapper.someList.size() +
             ' items.';
         return response;
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static String formatRecordDetails(String name, String phone, String type) {
+        String result = '';
+        if (name != null && name != '') {
+            result += 'Name: ' + name + ' | ';
+        }
+        if (phone != null && phone != '') {
+            result += 'Phone: ' + phone + ' | ';
+        }
+        if (type != null && type != '') {
+            result += 'Type: ' + type;
+        }
+        return result.trim();
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static String formatRecordDetails(String name, String phone, String type) {
+        String result = '';
+        if (name != null && name != '') {
+            result += 'Name: ' + name + ' | ';
+        }
+        if (phone != null && phone != '') {
+            result += 'Phone: ' + phone + ' | ';
+        }
+        if (type != null && type != '') {
+            result += 'Type: ' + type;
+        }
+        return result.trim();
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static String formatRecordDetails(String name, String phone, String type) {
+        String result = '';
+        if (name != null && name != '') {
+            result += 'Name: ' + name + ' | ';
+        }
+        if (phone != null && phone != '') {
+            result += 'Phone: ' + phone + ' | ';
+        }
+        if (type != null && type != '') {
+            result += 'Type: ' + type;
+        }
+        return result.trim();
     }
 }
