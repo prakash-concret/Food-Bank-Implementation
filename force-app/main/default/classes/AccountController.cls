@@ -28,7 +28,7 @@ public with sharing class AccountController {
             WITH USER_MODE
             LIMIT 1
         ];
-    }
+    }      
 
     @AuraEnabled
     public static void randomizeAccountData(Id accountId) {

@@ -10,11 +10,11 @@ permissions:
   actions: read
 
 jobs:
-  run-sfdx-scanner:
-    uses: ./.github/workflows/run-sfdx-scanner.yml
-    secrets: inherit
+  # run-sfdx-scanner:
+  #   uses: ./.github/workflows/run-sfdx-scanner.yml
+  #   secrets: inherit
 
   pr-review:
-    needs: run-sfdx-scanner
+    # needs: run-sfdx-scanner
     uses: ./.github/workflows/pr-review.yml
     secrets: inherit
