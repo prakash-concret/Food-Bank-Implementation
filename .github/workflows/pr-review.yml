@@ -30,6 +30,17 @@ jobs:
             echo "available=true" >> $GITHUB_OUTPUT
           fi
 
+      - name: Get changed files (excluding gitignored)
+        id: changed-files
+        if: steps.check-token.outputs.available == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          FILES=$(gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --name-only \
+            | while read f; do git check-ignore -q "$f" || echo "$f"; done \
+            | tr '\n' ' ')
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+
       - uses: anthropics/claude-code-action@v1
         if: steps.check-token.outputs.available == 'true'
         with:
@@ -41,16 +52,14 @@ jobs:
 
             You are an expert code reviewer for Element AMS, a Salesforce ISV managed package.
 
+            The following files were changed in this PR (gitignored files already excluded):
+            ${{ steps.changed-files.outputs.files }}
+
             Follow these steps exactly:
 
             1. Read `skills/pr-review-validation/SKILL.md` — this is your review framework.
-            2. Follow Step 1 in that file: get the list of changed files using:
-               gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --name-only
-            3. Follow Step 2: for each changed file, identify the matching skill files from the table
-               in SKILL.md and read each one using the Read tool.
-            4. Follow Step 3: review every changed file using the rules from the loaded skill files
-               plus the general checklist in SKILL.md.
-            5. Follow Step 4: post all findings as inline PR comments at the relevant lines.
+            2. Review only the files listed above using the rules from SKILL.md.
+            3. Post all findings as inline PR comments at the relevant lines.
 
             Only comment on lines that were actually changed in this PR.
 

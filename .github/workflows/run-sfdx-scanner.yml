@@ -20,7 +20,10 @@ jobs:
         run: |
           BASE=${{ github.base_ref || 'main' }}
           git fetch origin $BASE
-          FILES=$(git diff --name-only --diff-filter=ACM origin/$BASE...HEAD | grep '^force-app/' | tr '\n' ' ' || true)
+          FILES=$(git diff --name-only --diff-filter=ACM origin/$BASE...HEAD \
+            | grep '^force-app/' \
+            | while read f; do git check-ignore -q "$f" || echo "$f"; done \
+            | tr '\n' ' ' || true)
           if [ -z "$FILES" ]; then
             echo "skip=true" >> $GITHUB_OUTPUT
             echo "No changed Salesforce files found. Skipping scanner."
@@ -69,9 +72,11 @@ jobs:
       - name: Fail on Critical/High Violations
         if: |
           steps.run-code-analyzer.outputs.num-sev1-violations > 0 ||
-          steps.run-code-analyzer.outputs.num-sev2-violations > 0
+          steps.run-code-analyzer.outputs.num-sev2-violations > 0 ||
+          steps.run-code-analyzer.outputs.num-sev3-violations > 0
         run: |
           echo "❌ Build failed: Critical or High severity violations found in changed files."
           echo "🔴 Critical: ${{ steps.run-code-analyzer.outputs.num-sev1-violations }}"
           echo "🔴 High:     ${{ steps.run-code-analyzer.outputs.num-sev2-violations }}"
+          echo "🟡 Medium:   ${{ steps.run-code-analyzer.outputs.num-sev3-violations }}"
           exit 1
