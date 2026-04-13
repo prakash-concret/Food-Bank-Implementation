@@ -49,4 +49,19 @@ public with sharing class AccountController {
 
     public class AccountUpdateException extends Exception {
     }
+
+    @AuraEnabled(cacheable=true)
+    public static String formatRecordDetails(String name, String phone, String type) {
+        String result = '';
+        if (name != null && name != '') {
+            result += 'Name: ' + name + ' | ';
+        }
+        if (phone != null && phone != '') {
+            result += 'Phone: ' + phone + ' | ';
+        }
+        if (type != null && type != '') {
+            result += 'Type: ' + type;
+        }
+        return result.trim();
+    }
 }
