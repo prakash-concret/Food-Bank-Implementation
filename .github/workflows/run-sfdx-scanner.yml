@@ -1,50 +1,82 @@
 name: Salesforce Code Analyzer Workflow
 on:
-  pull_request:
+  workflow_call:
+  workflow_dispatch:
 jobs:
   salesforce-code-analyzer-workflow:
     permissions:
-      pull-requests: write # Grants permission to create a pull request review. Only necessary if running against pull requests.
-      contents: read # Grants permission to check out the repository. Only necessary for private repos.
-      actions: read # Grants permission to read the in-progress actions. Only necessary for private repos.
+      pull-requests: write
+      contents: read
+      actions: read
     runs-on: ubuntu-latest
     steps:
       - name: Check out files
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # PREREQUISITES - Only needed if the runner doesn't already satisfy these requirements.
+      - name: Get changed Salesforce files
+        id: changed-files
+        run: |
+          BASE=${{ github.base_ref || 'main' }}
+          git fetch origin $BASE
+          FILES=$(git diff --name-only --diff-filter=ACM origin/$BASE...HEAD \
+            | grep '^force-app/' \
+            | while read f; do git check-ignore -q "$f" || echo "$f"; done \
+            | tr '\n' ' ' || true)
+          if [ -z "$FILES" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "No changed Salesforce files found. Skipping scanner."
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "files=$FILES" >> $GITHUB_OUTPUT
+            echo "Changed files: $FILES"
+          fi
+
       - name: Ensure node v20.9.0 or greater
-        uses: actions/setup-node@v5
+        if: steps.changed-files.outputs.skip == 'false'
+        uses: actions/setup-node@v4
         with:
           node-version: '>=20.9.0'
+
       - name: Ensure java v11 or greater
-        uses: actions/setup-java@v5
+        if: steps.changed-files.outputs.skip == 'false'
+        uses: actions/setup-java@v4
         with:
           java-version: '>=11'
           distribution: 'zulu'
+
       - name: Ensure python v3.10 or greater
-        uses: actions/setup-python@v6
+        if: steps.changed-files.outputs.skip == 'false'
+        uses: actions/setup-python@v5
         with:
           python-version: '>=3.10'
 
       - name: Install Salesforce CLI
+        if: steps.changed-files.outputs.skip == 'false'
         run: npm install -g @salesforce/cli@latest
 
       - name: Install Latest Salesforce Code Analyzer CLI Plugin
+        if: steps.changed-files.outputs.skip == 'false'
         run: sf plugins install code-analyzer@latest
 
       - name: Run Salesforce Code Analyzer
+        if: steps.changed-files.outputs.skip == 'false'
         id: run-code-analyzer
         uses: forcedotcom/run-code-analyzer@v2
         with:
-          run-arguments: --workspace . --view detail --output-file sfca_results.html --output-file sfca_results.json
+          run-arguments: --workspace ${{ steps.changed-files.outputs.files }} --view detail --output-file sfca_results.html --output-file sfca_results.json
           results-artifact-name: salesforce-code-analyzer-results
           github-token: ${{ github.TOKEN }}
 
-
-      # Quality gate on CHANGED files only (useful for legacy codebases)
-      - name: Fail on Critical/High Violations (Changed Files Only)
+      - name: Fail on Critical/High Violations
         if: |
-          steps.run-code-analyzer.outputs.num-sev1-violations-in-changed-files > 0 ||
-          steps.run-code-analyzer.outputs.num-sev2-violations-in-changed-files > 0
-        run: exit 1
+          steps.run-code-analyzer.outputs.num-sev1-violations > 0 ||
+          steps.run-code-analyzer.outputs.num-sev2-violations > 0 ||
+          steps.run-code-analyzer.outputs.num-sev3-violations > 0
+        run: |
+          echo "❌ Build failed: Critical or High severity violations found in changed files."
+          echo "🔴 Critical: ${{ steps.run-code-analyzer.outputs.num-sev1-violations }}"
+          echo "🔴 High:     ${{ steps.run-code-analyzer.outputs.num-sev2-violations }}"
+          echo "🟡 Medium:   ${{ steps.run-code-analyzer.outputs.num-sev3-violations }}"
+          exit 1
